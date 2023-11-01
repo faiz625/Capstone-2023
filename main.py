@@ -3,7 +3,7 @@ import numpy as np
 import dlib
 from collections import namedtuple
 
-def detect_face(face_detector, predictor, frame, gray):
+def detect_face(face_detector, predictor, frame, gray, page):
     # array of faces coordinates
     faces = face_detector.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5)
     for f in faces:
@@ -15,9 +15,9 @@ def detect_face(face_detector, predictor, frame, gray):
 
         # using detected face region, find eyes
         dlib_rect = dlib.rectangle(x0, y0, x1, y1)
-        detect_eyes(predictor, frame, gray, dlib_rect)
+        detect_eyes(predictor, frame, gray, dlib_rect, page)
 
-def detect_eyes(predictor, frame, gray, f):
+def detect_eyes(predictor, frame, gray, f, page):
     # get landmark points (reference face_landmarks.png)
     points = predictor(gray, f)
 
@@ -44,6 +44,9 @@ def detect_eyes(predictor, frame, gray, f):
     # draw a vertical line connecting the top and bottom points
     l_vertical_line = cv2.line(frame, l_top_point, l_bottom_point, (0, 255, 0), 2)
 
+    # use right eye for gaze detection
+    gaze_detection(points, rEye, page)
+
 def get_eye_points(points, Eye):
     # eye's left corner
     left_point = (points.part(Eye.left).x, points.part(Eye.left).y)
@@ -59,9 +62,18 @@ def get_eye_points(points, Eye):
 def calc_midpoint(p1, p2):
     return int((p1.x + p2.x) / 2), int((p1.y + p2.y) / 2)
 
+def gaze_detection(points, rEye, page):
+    pass
+
 def main():
     # Initialize the webcam (0 is typically the built-in webcam)
     cap = cv2.VideoCapture(0)
+
+    # get screen size
+    size_screen = (cap.get(cv2.CAP_PROP_FRAME_HEIGHT), cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+
+    # blank page for eye gaze
+    page = (np.zeros((int(size_screen[0]), int(size_screen[1]), 3))).astype('uint8')
 
     # face detector
     face_detector = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -77,10 +89,11 @@ def main():
         # convert frame to grayscale
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        detect_face(face_detector, predictor, frame, gray)
+        detect_face(face_detector, predictor, frame, gray, page)
 
         # Display the frame
         cv2.imshow("Frame", frame)
+        cv2.imshow("test", page)
 
         # Press 'q' to exit the loop
         if cv2.waitKey(1) & 0xFF == ord('q'):
