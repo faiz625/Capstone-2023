@@ -1,12 +1,21 @@
-Eye and Pupil Detection with OpenCV
+<h1 align="center">Capstone Project 2023</h1>
+<p align="center">Eye Feature Extraction with OpenCV and Python</p>
 
-Install the Required Libraries: Make sure you have OpenCV and NumPy installed. You can install them using pip if you haven't already:
+## Table of Contents
+- [Installation](#installation)
+- [Usage](#usage)
 
-```
-pip install opencv-python numpy
-```
+## Installation
 
-Run main.py script (I used VS)
+Clone this repository. You will need `Python v3.9` or above and `PIP` installed globally on your machine.
+
+Then run the following command in a terminal:
+
+`pip install -r requirements.txt`
+
+## Usage
+
+Run iris_detection.py script in a terminal
 
 Camera setting: If you have a built-in webcam, it's usually Camera #0. If you have an external camera, you might need to change the VideoCapture(0) argument - use this to find where it exists:
 
@@ -18,8 +27,6 @@ Camera setting: If you have a built-in webcam, it's usually Camera #0. If you ha
             cap.release()
     cv2.destroyAllWindows()
 
+After you run it, you should see a window pop up with a video feed from your webcam. It'll start detecting your left and right irises and display the coordinates of both.
 
-
-After you run it, you should see a window pop up with a video feed from your webcam. It'll start recognizing your face and drawing rectangles around your eyes. If it detects your eyes, it'll try to find your pupils and draw circles around them. 
-
-Exit: To stop the script, press 'q' on the window that popped up
+To stop the script, press 'q' on the window that popped up.
