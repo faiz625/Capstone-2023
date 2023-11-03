@@ -14,8 +14,8 @@ class EyeIrisDetector:
     def __init__(self, eye_frame, threshold):
         self.iris_frame = None
         self.threshold = threshold
-        self.pupil_x = None
-        self.pupil_y = None
+        self.x = None
+        self.y = None
 
         self.detect_iris(eye_frame)
 
@@ -30,16 +30,10 @@ class EyeIrisDetector:
         Returns:
             A frame with a single element representing the iris.
         """
-        # Create a 3x3 kernel for erosion
-        kernel = np.ones((3, 3), np.uint8)
 
         # Apply bilateral filtering for noise reduction and detail preservation
         # Parameters: Diameter, Sigma values in color space, and sigma values in coordinate space
         processed_frame = cv2.bilateralFilter(eye_frame, 10, 15, 15)
-
-        # Erode the image to remove small noise or unwanted details
-        # Apply the erosion operation 3 times (iterations=3)
-        processed_frame = cv2.erode(processed_frame, kernel, iterations=3)
 
         # Threshold the image to binarize it
         # Pixels with values greater than or equal to the threshold become 255, the rest become 0
@@ -72,8 +66,8 @@ class EyeIrisDetector:
 
             # Calculate the x and y coordinates of the centroid by using the moments
             # The centroid coordinates are the weighted average of all pixel coordinates in the contour
-            self.pupil_x = int(moments['m10'] / moments['m00'])
-            self.pupil_y = int(moments['m01'] / moments['m00'])
+            self.x = int(moments['m10'] / moments['m00'])
+            self.y = int(moments['m01'] / moments['m00'])
         except (IndexError, ZeroDivisionError):
             # Handle potential errors, such as no contour or division by zero
             pass

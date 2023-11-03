@@ -1,7 +1,7 @@
 import math
 import numpy as np
 import cv2
-from .EyeIrisDetector import EyeIrisDetector
+from eye_iris_detector import EyeIrisDetector
 
 class Eye(object):
     """
@@ -80,7 +80,6 @@ class Eye(object):
         else:
             return
 
-        self.blinking = self._blinking_ratio(landmarks, points)
         self._isolate(original_frame, landmarks, points)
 
         if not calibration.is_complete():
