@@ -27,6 +27,6 @@ Camera setting: If you have a built-in webcam, it's usually Camera #0. If you ha
             cap.release()
     cv2.destroyAllWindows()
 
-After you run it, you should see a window pop up with a video feed from your webcam. It'll start detecting your left and right irises and display the coordinates of both.
+After you run it, you should see a window pop up with a video feed from your webcam. It'll start detecting your left and right irises and display the approximate coordinates of the pupils.
 
 To stop the script, press 'q' on the window that popped up.
