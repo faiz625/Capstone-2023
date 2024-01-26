@@ -1,6 +1,4 @@
-# face-recognition-assignment
-
-This is the given task or assignment for the role of data science intern at absolute face
+# Facial Recognition portion of Capstone
 
 ## Requirements
 
@@ -8,26 +6,20 @@ This is the given task or assignment for the role of data science intern at abso
 - OpenCV 3.3.0 or above
 - Numpy 1.14.3 or above
 
-## Main 3 steps of this project:
+## How does it work?
 
-1. Gathering the dataset from webcam.(also you can skip it if you have the data already)
-2.Train a model from the acquired dataset and save the model.
+1. Gathers the dataset (pictures of user) using the webcam.
+2.Trains a model from the acquired dataset and saves the model.
 3.Use the trained model to classify faces in realtime.
 
-## Steps to run this on your system.
-This must work with OSX and Linux. I haven't tried windows yet.
+## Steps to run:
 
-**Step 1**. Create directories saved_model and training_data. Although it will be added automatically if you forget to create.
-Run the face_datasets.py file on your terminal. Before running it set the **face_id** (on line 23) to some integer value for each time
-you run it. This sets the labels.
 
-**Step 2**.Start training the model with the obtained dataset by running the training.py.
+**Step 1**. Run main.py and enter the name of your user. Once a name is entered, the program will take 100 pictures of the user and store it in the training_data folder. The information from the user will be stored to user_info.txt. If you want to add another user, run main.py again but enter a different username.
 
-**Step 3**: Run the face_recognition.py file to start detection. But before running that don't forget to change the names of ids from
-line 59.(Some names are already set since I ran it)
+**Step 2**. Run training.py, this trains the model based on the images in the dataset and stores it in the saved_model folder.
 
-See the results.
+**Step 3**: Run the face_recognition.py file to start detection.
 
-Reference: OpenCV Documentation
 
 
