@@ -20,4 +20,4 @@ class MoveMouse:
         y = min(max(y, 0), self.screen_height)
         print(x, y)
         pyautogui.moveTo(x, y)
-        
+

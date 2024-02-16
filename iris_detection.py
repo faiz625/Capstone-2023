@@ -10,7 +10,7 @@ class IrisDetection:
         self._iris_landmarks = None
         
     def iris_tracking(self, frame, face_mesh):
-        left_pupil, right_pupil = None, None
+        left_pupil, right_pupil, avg = None, None, (0, 0)  # Initialize avg with a default value
         # Convert the frame from RGB to BGR color space
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
@@ -33,8 +33,7 @@ class IrisDetection:
             left_pupil = self._iris_landmarks[473]
             right_pupil = self._iris_landmarks[468]
 
-            
-            avg = (left_pupil + right_pupil)/2
+            avg = (left_pupil + right_pupil) / 2
 
         return left_pupil, right_pupil, avg
 
