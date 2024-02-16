@@ -31,7 +31,8 @@ def main():
             face_landmarks = iris_detection.landmarks(frame, face_mesh)
 
             # perform gaze estimation
-            gaze.gaze(frame, face_landmarks)
+            if face_landmarks is not None:
+                gaze.gaze(frame, face_landmarks)
 
             # Get iris landmarks
             left_pupil, right_pupil, avg = iris_detection.iris_landmarks()

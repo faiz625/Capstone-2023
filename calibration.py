@@ -2,6 +2,15 @@ import cv2
 import mediapipe as mp
 import numpy as np
 from iris_detection import IrisDetection
+from datetime import datetime
+import tkinter
+import gaze
+
+current_timestamp = datetime.now()
+
+root = tkinter.Tk()
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
 
 def calibrate_gaze_estimation():
     # Initialize the webcam (0 is typically the built-in webcam)
@@ -66,19 +75,30 @@ def calibrate_gaze_estimation():
                     break
 
                 # Flip the frame horizontally for a selfie-view display
-                webcam_frame = cv2.flip(frame, 1) 
-                iris_detection.landmarks(webcam_frame, face_mesh)
+                webcam_frame = cv2.flip(webcam_frame, 1) 
+                # get face landmarks
+                face_landmarks = iris_detection.landmarks(webcam_frame, face_mesh)
+
+                # perform gaze estimation
+                if face_landmarks is not None:
+                    gaze.gaze(webcam_frame, face_landmarks)
 
                 # Get iris landmarks
                 left_pupil, right_pupil, avg = iris_detection.iris_landmarks()
 
+
                 #TODO calibration add data to list
                 calibration_data.append({
                     'pupil coords': (left_pupil, right_pupil),
-                    'points':
+                    'points': point,
+                    'timestamp': current_timestamp,
+                    'screen size': (screen_width, screen_height),
+                    # 'eye_landmarks': eye_landmarks,  # Assuming we can extract from iris detection
+                    'calibration_accuracy': None  #calibration validation? TBD for now
                 })
 
                 # Display the frame
+                cv2.imshow("Gaze", webcam_frame)
                 cv2.imshow("Calibration", frame)
 
                 # Wait for the space bar key press to move to the next calibration point
