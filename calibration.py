@@ -1,10 +1,10 @@
 import cv2
 import mediapipe as mp
 import numpy as np
+from gaze import *
 from iris_detection import IrisDetection
 from datetime import datetime
 import tkinter
-import gaze
 
 current_timestamp = datetime.now()
 
@@ -81,20 +81,20 @@ def calibrate_gaze_estimation():
 
                 # perform gaze estimation
                 if face_landmarks is not None:
-                    gaze.gaze(webcam_frame, face_landmarks)
+                    gaze_L, gaze_R = gaze(webcam_frame, face_landmarks)
 
-                # Get iris landmarks
                 left_pupil, right_pupil, avg = iris_detection.iris_landmarks()
 
 
-                #TODO calibration add data to list
+                # Updated code snippet with approximate gaze point coordinates added to calibration_data
                 calibration_data.append({
                     'pupil coords': (left_pupil, right_pupil),
-                    'points': point,
+                    'points': point,  # The target point on the screen
                     'timestamp': current_timestamp,
                     'screen size': (screen_width, screen_height),
-                    # 'eye_landmarks': eye_landmarks,  # Assuming we can extract from iris detection
-                    'calibration_accuracy': None  #calibration validation? TBD for now
+                    # 'calibration_accuracy': None
+                    'left_eye_gaze': gaze_L,  # Gaze coordinates for the left eye
+                    'right_eye_gaze': gaze_R  # Gaze coordinates for the right eye
                 })
 
                 # Display the frame

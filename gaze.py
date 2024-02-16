@@ -56,9 +56,9 @@ def gaze(frame, points):
     Eye_ball_center_right = np.array([[-29.05], [32.7], [-39.5]])
     Eye_ball_center_left = np.array([[29.05], [32.7], [-39.5]])  # the center of the left eyeball as a vector.
 
-    d = open("Capstone-2023/dist.pkl", "rb")
+    d = open("dist.pkl", "rb")
     dt = pickle.load(d)
-    m = open("Capstone-2023/cameraMatrix.pkl", "rb")
+    m = open("cameraMatrix.pkl", "rb")
     mt = pickle.load(m)
 
     camera_matrix = mt
@@ -109,3 +109,5 @@ def gaze(frame, points):
         p2 = (int(mean_gaze[0]), int(mean_gaze[1]))
         cv2.line(frame, left_pupil_loc, p2, (0, 0, 255), 2)
         cv2.line(frame, right_pupil_loc, p2, (0, 0, 255), 2)
+        
+        return gaze_L, gaze_R
