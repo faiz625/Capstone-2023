@@ -1,8 +1,8 @@
 import cv2
 import mediapipe as mp
 from iris_detection import IrisDetection
+import gaze
 from mouse_movement import MoveMouse
-import time
 
 def main():
     # Initialize the webcam (0 is typically the built-in webcam)
@@ -24,21 +24,27 @@ def main():
             if not ret:
                 break
 
-            # Perform iris tracking on the frame using the face mesh 
-            left_pupil, right_pupil, avg = iris_detection.iris_tracking(frame, face_mesh)
+            # Flip the frame horizontally for a selfie-view display
+            frame = cv2.flip(frame, 1)
+
+            # get face landmarks
+            face_landmarks = iris_detection.landmarks(frame, face_mesh)
+
+            # perform gaze estimation
+            gaze.gaze(frame, face_landmarks)
+
+            # Get iris landmarks
+            left_pupil, right_pupil, avg = iris_detection.iris_landmarks()
+
+            # draw rect around eye regions
+            iris_detection.show_right_eye_region(frame)
+            iris_detection.show_left_eye_region(frame)
 
             # draw circles around the irises:
             iris_detection.draw_irises(frame)
 
             # Display the coordinates of the left and right pupils on the frame
             iris_detection.display_iris_coords(frame, left_pupil, right_pupil)
-
-            # move mouse
-            try:
-                move_mouse.move_cursor(avg)
-                time.sleep(move_mouse.update_frequency)
-            except KeyboardInterrupt:
-                break
             
             # Display the frame
             cv2.imshow("Frame", frame)
