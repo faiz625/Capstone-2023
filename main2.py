@@ -56,8 +56,10 @@ def main():
                 if (left_eye_bottom - left_eye_top) < 10:  # Eye closed
                     if blink_start_time is None:
                         blink_start_time = time.time()
+                        print("Eyes are closed")
                     else:
                         blink_duration = time.time() - blink_start_time
+                        print(f"Eyes are open for:{blink_duration}s")
                 else:  # Eye open
                     if blink_duration > 1:
                         if blink_duration >= 4:
