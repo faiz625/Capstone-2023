@@ -5,6 +5,7 @@ from mouse_movement import MoveMouse
 import time
 import pyautogui
 import datetime
+import winsound
 
 def main():
     # Initialize the webcam (0 is typically the built-in webcam)
@@ -20,6 +21,10 @@ def main():
         min_detection_confidence=0.5,
         min_tracking_confidence=0.5
     ) as face_mesh:
+        
+        blink_count = 0
+        start_time = time.time()
+
         while True:
             # Read a frame from the webcam
             ret, frame = cap.read()
@@ -44,28 +49,54 @@ def main():
             
             # Detect left eye closure and perform click action
             left_eye_landmarks = face_mesh.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)).multi_face_landmarks
-            
+            right_eye_landmarks = face_mesh.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)).multi_face_landmarks
             if left_eye_landmarks:
                 left_eye_landmarks = left_eye_landmarks[0].landmark
                 left_eye_top = int(left_eye_landmarks[159].y * frame.shape[0])
                 left_eye_bottom = int(left_eye_landmarks[145].y * frame.shape[0])
 
-                if (left_eye_bottom - left_eye_top) < 10:
-                    pyautogui.click()
-                    click_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    print(f"Left click registered at {click_time}")        
-            
-            # Detect right eye closure and perform right click action
-            right_eye_landmarks = face_mesh.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)).multi_face_landmarks
             if right_eye_landmarks:
                 right_eye_landmarks = right_eye_landmarks[0].landmark
                 right_eye_top = int(right_eye_landmarks[386].y * frame.shape[0])
                 right_eye_bottom = int(right_eye_landmarks[374].y * frame.shape[0])
-                
-                if (right_eye_bottom - right_eye_top) < 10:
-                    pyautogui.click(button='right')
+
+                if (left_eye_bottom - left_eye_top) < 10 and (right_eye_bottom - right_eye_top) < 10:
+                    blink_count += 1
                     click_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    print(f"Right click registered at {click_time}")
+                    print(f"Blink detected at {click_time}")
+
+            # Reset blink count if more than 5 seconds have passed
+            if time.time() - start_time > 5:
+                if blink_count >= 2 and blink_count < 3:
+                    pyautogui.click(button='right')
+                    print("2 blinks detected in 5 seconds, performing L-click action")
+                    winsound.Beep(2000, 200)
+                elif blink_count >= 3 and blink_count < 4:
+                    pyautogui.click()
+                    print("3 blinks detected in 5 seconds, performing R-click action")
+                    winsound.Beep(3000, 200)
+                elif blink_count >= 4:
+                    pyautogui.click()
+                    pyautogui.click()
+                    print("4 blinks detected in 5 seconds, performing double L-click action")
+                    winsound.Beep(2000, 100)
+                    winsound.Beep(2000, 100)
+                blink_count = 0
+                start_time = time.time()  
+                winsound.Beep(1000, 200)   # every 5s timer beep
+
+            
+            # # Detect right eye closure and perform right click action
+            # right_eye_landmarks = face_mesh.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)).multi_face_landmarks
+            # if right_eye_landmarks:
+            #     right_eye_landmarks = right_eye_landmarks[0].landmark
+            #     right_eye_top = int(right_eye_landmarks[386].y * frame.shape[0])
+            #     right_eye_bottom = int(right_eye_landmarks[374].y * frame.shape[0])
+                
+            #     if (right_eye_bottom - right_eye_top) < 10:
+            #         pyautogui.click(button='right')
+            #         click_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            #         print(f"Right click registered at {click_time}")
 
             # Display the frame
             cv2.imshow("Frame", frame)
