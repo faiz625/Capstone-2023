@@ -2,20 +2,26 @@ import cv2
 import numpy as np
 import mediapipe as mp
 import pyautogui
+import time
 import platform
+pyautogui.FAILSAFE = False
 
 if platform.system() == "Windows":
     import win32gui
 
 class MoveMouse:
-    def __init__(self, frame_width=640, frame_height=480, smoothing_factor=0.7, move_threshold=10):
+    def __init__(self, frame_width=640, frame_height=480, smoothing_factor=0.7, move_threshold=50, ma_window_size=10, inactivity_threshold=3):
         self.screen_width, self.screen_height = pyautogui.size()
         self.frame_width = frame_width
         self.frame_height = frame_height
         self.smoothing_factor = smoothing_factor
         self.move_threshold = move_threshold
+        self.ma_window_size = ma_window_size  # Moving average window size
+        self.gaze_points_window = []  # List to store recent gaze points
         self.last_x, self.last_y = None, None
         self.dpi = self.get_dpi()
+        self.inactivity_threshold = inactivity_threshold  # Seconds
+        self.last_active_time = time.time()
         # Initialize minimum and maximum gaze points
         self.gaze_min = [float('inf'), float('inf')]
         self.gaze_max = [-float('inf'), -float('inf')]
@@ -60,24 +66,39 @@ class MoveMouse:
         return int(x_scaled), int(y_scaled)
     
     def move_cursor(self, gaze_point):
+        
+        current_time = time.time()
         self.update_gaze_range(gaze_point)  # Update min and max gaze points
         x, y = self.scale_gaze_to_screen(gaze_point)  # Scale gaze point
-        
-        x = int(gaze_point[0] * self.screen_width / self.frame_width)
-        y = int(gaze_point[1] * self.screen_height / self.frame_height)
 
         if self.last_x is not None and self.last_y is not None:
-            x_smoothed = int(x * self.smoothing_factor + self.last_x * (1 - self.smoothing_factor))
-            y_smoothed = int(y * self.smoothing_factor + self.last_y * (1 - self.smoothing_factor))
-            if abs(x_smoothed - self.last_x) >= self.move_threshold or abs(y_smoothed - self.last_y) >= self.move_threshold:
+            distance = ((gaze_point[0] - self.last_x) ** 2 + (gaze_point[1] - self.last_y) ** 2) ** 0.5
+            if distance < self.move_threshold:
+                # If the gaze hasn't moved significantly, check the inactivity duration
+                if current_time - self.last_active_time > self.inactivity_threshold:
+                    # Assume eyes might be closed or user is not actively looking
+                    print("Possible inactivity detected. Retaining cursor position.")
+                    return
+            else: 
+                self.last_active_time = current_time
+            # Calculate movement speed
+            speed = ((x - self.last_x) ** 2 + (y - self.last_y) ** 2) ** 0.5
+            # Adjust smoothing factor based on speed
+            dynamic_smoothing = max(1, min(self.smoothing_factor, 10 / max(1, speed)))
 
-                # Update the cursor position
+            # Output the dynamic smoothing factor value
+            print(f"Dynamic Smoothing Factor: {dynamic_smoothing}")
+
+            x_smoothed = int(x * dynamic_smoothing + self.last_x * (1 - dynamic_smoothing))
+            y_smoothed = int(y * dynamic_smoothing + self.last_y * (1 - dynamic_smoothing))
+            if abs(x_smoothed - self.last_x) >= self.move_threshold or abs(y_smoothed - self.last_y) >= self.move_threshold:
                 pyautogui.moveTo(x_smoothed, y_smoothed)
-                # Update last positions
                 self.last_x, self.last_y = x_smoothed, y_smoothed
         else:
             pyautogui.moveTo(x, y)
             self.last_x, self.last_y = x, y
+            self.last_x, self.last_y = gaze_point[0], gaze_point[1]
+
         
 
         
