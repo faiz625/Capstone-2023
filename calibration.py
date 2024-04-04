@@ -69,8 +69,9 @@ def run_calibration():
             bg = (bg_origin[0] + 1, bg_origin[1] + 1, bg_origin[2] + 1, bg_origin[3])
         else:
             bg = (bg_origin[0] - 1, bg_origin[1] - 1, bg_origin[2] - 1, bg_origin[3])
-
-        f_x, f_y, distance = detector.get_frame()
+        
+        frame = detector.grab_frame()
+        f_x, f_y, distance = detector.get_frame(frame)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

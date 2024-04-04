@@ -32,8 +32,11 @@ class Detector:
         capture_image('captured_images', frame=self.frame_queue.get())
         os.makedirs(self._save_folder, exist_ok=True)
     
-    def get_frame(self):
+    def grab_frame(self):
         frame = self.frame_queue.get()
+        return frame
+    
+    def get_frame(self, frame):
         frame = cv2.flip(frame, 1)
         f_x, f_y = None, None
         with self._mp_face_mesh.FaceMesh(
