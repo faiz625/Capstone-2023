@@ -1,25 +1,25 @@
-Eye and Pupil Detection with OpenCV
+# Facial Recognition portion of Capstone
 
-Install the Required Libraries: Make sure you have OpenCV and NumPy installed. You can install them using pip if you haven't already:
+## Requirements
 
-```
-pip install opencv-python numpy
-```
+- Python 3.6
+- OpenCV 3.3.0 or above
+- Numpy 1.14.3 or above
 
-Run main.py script (I used VS)
+## How does it work?
 
-Camera setting: If you have a built-in webcam, it's usually Camera #0. If you have an external camera, you might need to change the VideoCapture(0) argument - use this to find where it exists:
+1. Gathers the dataset (pictures of user) using the webcam.
+2.Trains a model from the acquired dataset and saves the model.
+3.Use the trained model to classify faces in realtime.
 
-    import cv2
-    for i in range(10):
-        cap = cv2.VideoCapture(i)
-        if cap.isOpened():
-            print(f"Camera found at index {i}")
-            cap.release()
-    cv2.destroyAllWindows()
+## Steps to run:
 
 
+**Step 1**. Run main.py and enter the name of your user. Once a name is entered, the program will take 100 pictures of the user and store it in the training_data folder. The information from the user will be stored to user_info.txt. If you want to add another user, run main.py again but enter a different username.
 
-After you run it, you should see a window pop up with a video feed from your webcam. It'll start recognizing your face and drawing rectangles around your eyes. If it detects your eyes, it'll try to find your pupils and draw circles around them. 
+**Step 2**. Run training.py, this trains the model based on the images in the dataset and stores it in the saved_model folder.
 
-Exit: To stop the script, press 'q' on the window that popped up
+**Step 3**: Run the face_recognition.py file to start detection.
+
+
+
