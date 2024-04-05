@@ -1,9 +1,30 @@
+import tkinter as tk
+from tkinter import simpledialog
 import pygame
+import numpy
+import asyncio
 from detector import Detector
 import itertools
 import random
 from mouse_movement import MoveMouse
 import pandas as pd
+from pymongo import MongoClient
+
+# Declare username as a global variable
+username = None
+
+def ask_username():
+    global username
+    # Create a Tkinter root window
+    root = tk.Tk()
+    # Hide the root window (optional, if you only want to show the dialog)
+    root.withdraw()
+    # Ask for the username using a simple dialog
+    username = simpledialog.askstring("Username", "Please enter your username:")
+    print(f"Welcome, {username}!")
+
+# Call ask_username at the start to prompt for the username
+ask_username()
 
 move_mouse = MoveMouse(frame_width=640, frame_height=480) 
 
@@ -47,11 +68,16 @@ def calculate_error_percentage(target_x, target_y, f_x, f_y):
     return error_percentage
 
 def save_data(calibrate_idx, target_x, target_y, f_x, f_y, distance, data):
+    # Check if f_x or f_y is None and handle accordingly
+    if f_x is None or f_y is None:
+        print("Error: f_x or f_y is None. Skipping data save for this frame.")
+        return  # Skip saving this frame's data
+
     error_percentage = calculate_error_percentage(target_x, target_y, f_x, f_y)
     data.loc[len(data)] = [calibrate_idx, target_x, target_y, f_x, f_y, distance, error_percentage]
     data.to_excel("calibration_data.xlsx", index=False)
 
-def run_calibration():
+async def run_calibration():
     bg = random.choice(((0, 0, 0), (200, 200, 200)))
     calibrate_idx = 0
     running = True
@@ -69,7 +95,6 @@ def run_calibration():
             bg = (bg_origin[0] + 1, bg_origin[1] + 1, bg_origin[2] + 1, bg_origin[3])
         else:
             bg = (bg_origin[0] - 1, bg_origin[1] - 1, bg_origin[2] - 1, bg_origin[3])
-        
         frame = detector.grab_frame()
         f_x, f_y, distance = detector.get_frame(frame)
 
@@ -95,6 +120,23 @@ def run_calibration():
 
         clock.tick(60)
         pygame.display.update()
+        await asyncio.sleep(0)
 
-run_calibration()
+asyncio.run(run_calibration())
+print(username)
+# Read the Excel file into a DataFrame
+df = pd.read_excel('calibration_data.xlsx')
+
+# Connect to MongoDB
+client = MongoClient('mongodb://localhost:27017/')
+db = client['EyeTrackerTest']
+collection = db['calibrationData']
+
+# Insert data into MongoDB
+for index, row in df.iterrows():
+    data_dict = row.to_dict()
+    data_dict['username'] = username
+    collection.insert_one(data_dict)
+
+print('Data inserted into MongoDB successfully.')
 pygame.quit()
