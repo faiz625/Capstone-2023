@@ -27,6 +27,7 @@ class Clicker:
 			pyautogui.doubleClick(button='left')
 			winsound.Beep(2000, 100)
 			winsound.Beep(2000, 100)
+		
 
 	def clickLoop(self, frame):
 		with self._mp_face_mesh.FaceMesh(
@@ -52,8 +53,8 @@ class Clicker:
 							print(f"Blink detected. Current count: {self._blink_count}")
 						self._eye_closed_start_time = None  
 
-				if time.time() - self._start_time > self._reset_interval:
-					self.perform_mouse_action()
-					self._blink_count = 0 
-					self._start_time = time.time()  
-					winsound.Beep(1000, 200)   
+			if time.time() - self._start_time > self._reset_interval:
+				self.perform_mouse_action()
+				self._blink_count = 0 
+				self._start_time = time.time()  
+				winsound.Beep(1000, 200)   
