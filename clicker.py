@@ -6,7 +6,6 @@ import winsound
 
 class Clicker:
 	def __init__(self):
-		self._mp_face_mesh = mp.solutions.face_mesh
 		self._blink_count = 0
 		self._eye_closed_start_time = None
 		self._reset_interval = 5  
@@ -29,32 +28,22 @@ class Clicker:
 			winsound.Beep(2000, 100)
 		
 
-	def clickLoop(self, frame):
-		with self._mp_face_mesh.FaceMesh(
-			max_num_faces=1,
-			refine_landmarks=True,
-			min_detection_confidence=0.5,
-			min_tracking_confidence=0.5
-		) as face_mesh:
-			output = face_mesh.process(frame)
-			landmark_points = output.multi_face_landmarks
+	def clickLoop(self, landmark_points):
+		landmarks = landmark_points.landmark
+		left = [landmarks[145], landmarks[159]]
 
-			if landmark_points:
-				landmarks = landmark_points[0].landmark
-				left = [landmarks[145], landmarks[159]]
+		if (left[0].y - left[1].y) < 0.01:
+			if self._eye_closed_start_time is None:
+				self._eye_closed_start_time = time.time()  
+		else:
+			if self._eye_closed_start_time:
+				if time.time() - self._eye_closed_start_time >= self._blink_threshold:
+					self._blink_count += 1
+					print(f"Blink detected. Current count: {self._blink_count}")
+				self._eye_closed_start_time = None  
 
-				if (left[0].y - left[1].y) < 0.01:
-					if self._eye_closed_start_time is None:
-						self._eye_closed_start_time = time.time()  
-				else:
-					if self._eye_closed_start_time:
-						if time.time() - self._eye_closed_start_time >= self._blink_threshold:
-							self._blink_count += 1
-							print(f"Blink detected. Current count: {self._blink_count}")
-						self._eye_closed_start_time = None  
-
-			if time.time() - self._start_time > self._reset_interval:
-				self.perform_mouse_action()
-				self._blink_count = 0 
-				self._start_time = time.time()  
-				winsound.Beep(1000, 200)   
+		if time.time() - self._start_time > self._reset_interval:
+			self.perform_mouse_action()
+			self._blink_count = 0 
+			self._start_time = time.time()  
+			winsound.Beep(1000, 200)   

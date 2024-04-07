@@ -8,20 +8,23 @@ import os
 import sys
 from utils import focal_length, distance_finder, capture_image
 from mouse_movement import MoveMouse
+from clicker import Clicker
 
 FACE_DIST = 48.4
 FACE_WIDTH = 13.4
 move_mouse = MoveMouse(frame_width=640, frame_height=480) 
+clicker = Clicker()
 
 class Detector:
-    def __init__(self, loaded_dist=20, tvec=40, move=False):
+    def __init__(self, loaded_dist=20, tvec=40, move=False, click=False):
         self._mp_face_mesh = mp.solutions.face_mesh
-        self._face_cascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
-        self._save_folder = 'captured_images'
+        self._face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+        self._save_folder = "captured_images"
         self._d = 0
         self._loaded_distance = loaded_dist
         self._tvec = tvec
         self._move = move
+        self._click = click
 
         self.cap = cv2.VideoCapture(0)
         self.frame_queue = queue.Queue()
@@ -29,14 +32,13 @@ class Detector:
         capture_thread.daemon = True
         capture_thread.start()
 
-        capture_image('captured_images', frame=self.frame_queue.get())
-        os.makedirs(self._save_folder, exist_ok=True)
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        p = os.path.join(script_dir, self._save_folder)
+        os.makedirs(p, exist_ok=True)
+        capture_image(p, frame=self.frame_queue.get())
     
-    def grab_frame(self):
+    def get_frame(self):
         frame = self.frame_queue.get()
-        return frame
-    
-    def get_frame(self, frame):
         frame = cv2.flip(frame, 1)
         f_x, f_y = None, None
         with self._mp_face_mesh.FaceMesh(
@@ -61,6 +63,8 @@ class Detector:
                     f_x, f_y = move_mouse.final_coords(gaze_point)
                     if self._move:
                         move_mouse.move_cursor(f_x, f_y)
+                    if self._click:
+                        clicker.clickLoop(face_landmarks)
                 except:
                     pass
 
@@ -99,7 +103,9 @@ class Detector:
         self._right_eye_center = right_pupil
     
     def get_distance_from_webcam(self, frame):
-        ref_image = cv2.imread("captured_images/captured_image.jpg")
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        p = os.path.join(script_dir, "captured_images/captured_image.jpg")
+        ref_image = cv2.imread(p)
         ref_image_face_width, _, _, _ = self.get_face_info(ref_image)
         focal_length_value = focal_length(FACE_DIST, FACE_WIDTH, ref_image_face_width)
         face_width_in_frame, Faces, _, _ = self.get_face_info(frame)

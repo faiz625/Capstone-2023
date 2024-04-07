@@ -16,10 +16,6 @@ import sys
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
-move_mouse = MoveMouse(frame_width=640, frame_height=480)
-file_path = "calibration_data.xlsx"
-DEBUG = False
-
 # Global variables to manage the detector thread
 detector_thread = None
 detector_running = False
@@ -27,20 +23,23 @@ detector_running = False
 # Function to run the detector in a separate thread
 def run_detector():
     global detector_running
-    move_mouse = MoveMouse(frame_width=640, frame_height=480)
-    file_path = "calibration_data.xlsx"
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(script_dir, "calibration_data.xlsx")
     DEBUG = False
     
     if os.path.exists(file_path):
         data = pd.read_excel(file_path)
         average_distance = int(data["distance"].mean()) // 2
         average_tvec = data["distance"].mean()
+        if average_distance == 0:
+            average_distance = 20
+        if average_tvec == 0:
+            average_tvec = 40
         if DEBUG:
             print(f"dist: {average_distance}, tvec: {average_tvec}")
-        detector = Detector(loaded_dist=average_distance, tvec=average_tvec, move=True)
+        detector = Detector(loaded_dist=average_distance, tvec=average_tvec, move=True, click=True)
         while detector_running:
-            frame = detector.grab_frame()
-            detector.get_frame(frame)
+            detector.get_frame()
 
         detector.close_cap()
     else:

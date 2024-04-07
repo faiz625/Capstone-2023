@@ -5,6 +5,7 @@ import numpy
 from detector import Detector
 import itertools
 import random
+import os
 from mouse_movement import MoveMouse
 import pandas as pd
 from pymongo import MongoClient
@@ -74,7 +75,9 @@ def save_data(calibrate_idx, target_x, target_y, f_x, f_y, distance, data):
 
     error_percentage = calculate_error_percentage(target_x, target_y, f_x, f_y)
     data.loc[len(data)] = [calibrate_idx, target_x, target_y, f_x, f_y, distance, error_percentage]
-    data.to_excel("calibration_data.xlsx", index=False)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(script_dir, "calibration_data.xlsx")
+    data.to_excel(file_path, index=False)
 
 def run_calibration():
     bg = random.choice(((0, 0, 0), (200, 200, 200)))
@@ -94,8 +97,8 @@ def run_calibration():
             bg = (bg_origin[0] + 1, bg_origin[1] + 1, bg_origin[2] + 1, bg_origin[3])
         else:
             bg = (bg_origin[0] - 1, bg_origin[1] - 1, bg_origin[2] - 1, bg_origin[3])
-        frame = detector.grab_frame()
-        f_x, f_y, distance = detector.get_frame(frame)
+
+        f_x, f_y, distance = detector.get_frame()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
