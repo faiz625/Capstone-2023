@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import simpledialog
 import pygame
 import numpy
-import asyncio
 from detector import Detector
 import itertools
 import random
@@ -77,7 +76,7 @@ def save_data(calibrate_idx, target_x, target_y, f_x, f_y, distance, data):
     data.loc[len(data)] = [calibrate_idx, target_x, target_y, f_x, f_y, distance, error_percentage]
     data.to_excel("calibration_data.xlsx", index=False)
 
-async def run_calibration():
+def run_calibration():
     bg = random.choice(((0, 0, 0), (200, 200, 200)))
     calibrate_idx = 0
     running = True
@@ -120,9 +119,8 @@ async def run_calibration():
 
         clock.tick(60)
         pygame.display.update()
-        await asyncio.sleep(0)
 
-asyncio.run(run_calibration())
+run_calibration()
 print(username)
 # Read the Excel file into a DataFrame
 df = pd.read_excel('calibration_data.xlsx')

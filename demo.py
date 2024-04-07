@@ -5,8 +5,13 @@ import keyboard
 import os
 import threading
 import pandas as pd
-from flask import Flask, jsonify
+from flask import request, Flask, jsonify
 from flask_cors import CORS
+import psutil
+import signal
+import time
+from multiprocessing import Process
+import sys
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -36,10 +41,26 @@ def run_detector():
         while detector_running:
             frame = detector.grab_frame()
             detector.get_frame(frame)
+
         detector.close_cap()
     else:
         print("Please run the calibration program first.")
         detector_running = False
+
+def runner():
+    """Wait for the main process to exit and then restart it."""
+    time.sleep(1)  # Wait a bit for the main process to shutdown
+    # Replace 'yourscript.py' with the name of your Flask application script
+    os.system(f'py {sys.argv[0]}')
+
+def restart():
+    """Spawn a detached process to restart the application and exit the current process."""
+    print("Restarting the Flask application...")
+    # Starting the runner process
+    p = Process(target=runner)
+    p.start()
+    # Exiting the current application
+    os._exit(0)
 
 @app.route('/start')
 def start():
@@ -60,6 +81,25 @@ def stop():
         return jsonify({'message': 'Detector is not running'}), 400
     detector_running = False
     return jsonify({'message': 'Detector stopped'}), 200
+
+@app.route('/start_calibration')
+def start_calibration_endpoint():
+    print("water")
+    from calibration import run_calibration
+    # clicked = True
+    # # username = request.form['username']
+    # # print(f"Starting calibration for username: {username}") 
+    
+    # # Use threading to run the calibration without blocking the Flask server
+    # thread = threading.Thread(target=run_calibration)
+    # thread.start()
+
+    # stop_flask_server()
+    # time.sleep(5)
+    # start_flask_server()
+    # restart()
+
+    return jsonify({"message": "Calibration started for user "}), 200
 
 if __name__ == "__main__":
     app.run(port=8000, debug=True)
