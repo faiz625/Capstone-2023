@@ -34,7 +34,8 @@ def run_detector():
             print(f"dist: {average_distance}, tvec: {average_tvec}")
         detector = Detector(loaded_dist=average_distance, tvec=average_tvec, move=True)
         while detector_running:
-            detector.get_frame()
+            frame = detector.grab_frame()
+            detector.get_frame(frame)
         detector.close_cap()
     else:
         print("Please run the calibration program first.")
