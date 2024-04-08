@@ -48,8 +48,7 @@ def run_detector():
 
 def runner():
     """Wait for the main process to exit and then restart it."""
-    time.sleep(1)  # Wait a bit for the main process to shutdown
-    # Replace 'yourscript.py' with the name of your Flask application script
+    time.sleep(1)  
     os.system(f'py {sys.argv[0]}')
 
 def restart():
@@ -99,6 +98,21 @@ def start_calibration_endpoint():
     # restart()
 
     return jsonify({"message": "Calibration started for user "}), 200
+
+@app.route('/start_faceRecognition')
+def start_faceRecognition_endpoint():
+    print("fire")
+    from face_runner import run_faceRecognition
+
+
+    return jsonify({"message": "Facial Recognition Calibration "}), 200
+
+
+@app.route('/start_faceVerification')
+def start_faceVerification_endpoint():
+    print("grass")
+    from face_recognition import run_faceVerification
+    return jsonify({"message": "User Face is Verified"}), 200
 
 if __name__ == "__main__":
     app.run(port=8000, debug=True)
