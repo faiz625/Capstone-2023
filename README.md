@@ -6,7 +6,7 @@ This project implements an eye gaze tracking system that uses webcam data to con
 ## Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/eyegazetracker.git
+   git clone git@github.com:faiz625/Capstone-2023.git
 2. Install require dependencies:
    ```bash
    pip install -r requirements.txt
